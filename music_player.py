@@ -1,25 +1,29 @@
 from file_manager import copy_music_files
 from pygame.mixer import music
-from threading import Thread
+from threading import Thread, current_thread
 from pathlib import Path
 import pygame, pygame.mixer
 import os
 import time
-
-
-kill_thread = False
+from mutagen.mp3 import MP3
 
 pygame.init()
 pygame.mixer.init()
+
+kill_thread = False
+current_playing = 0
 
 
 class MusicPlayer:
     def __init__(self):
         self.source = Path(__file__).parent / "music_files"
         self.music_files = self.get_music_files(self.source)
-        self.current_playing = 0
         self.is_playing = False
         self.is_pause = True
+
+    def get_song_length(self):
+        music = MP3(self.music_files[current_playing % len(self.music_files)])
+        return round(music.info.length)
 
     def get_music_files(self, source):
         """
@@ -40,17 +44,18 @@ class MusicPlayer:
         """
         if not self.is_playing:
             # play the first/last song if index is out of range
-            music.load(self.music_files[self.current_playing % len(self.music_files)])
+            music.load(self.music_files[current_playing % len(self.music_files)])
             music.play()
             self.is_playing = True
+            self.is_pause = False
+            x = Thread(target=self.queue_next)
+            x.start()
         elif self.is_pause:
             music.unpause()
             self.is_pause = False
         else:
             music.pause()
             self.is_pause = True
-        x = Thread(target=self.queue_next)
-        x.start()
 
     def stop_music(self):
         """
@@ -65,7 +70,8 @@ class MusicPlayer:
         Stop the current music and play the next one.
         """
         self.stop_music()
-        self.current_playing += 1
+        global current_playing
+        current_playing += 1
         self.play_pause()
 
     def previous(self):
@@ -73,8 +79,13 @@ class MusicPlayer:
         Stop the current music and play the previous one.
         """
         self.stop_music()
-        self.current_playing -= 1
+        global current_playing
+        current_playing -= 1
         self.play_pause()
+
+    def seek_song(self, pos):
+        music.play(1, pos)
+        print("pos is set")
 
     def queue_next(self):
         """
