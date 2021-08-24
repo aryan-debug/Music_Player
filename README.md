@@ -20,7 +20,7 @@ This controls GUI (Graphical User Interface) of the app. In order to make it smo
 ---
 ## How to use it
 
-In order to use it, download the code from GitHub and make sure to make a folder named `music_files`. Make sure the folder is in the same folder where other `file_manager.py` is.
+In order to use it, download the code from GitHub and make sure to make a folder named `music_files`. Make sure the folder is in the same folder where `file_manager.py` is. Also, make sure you have installed the requirements from `requirements.txt`.
 
 ---
 Enjoy!
