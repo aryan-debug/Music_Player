@@ -1,6 +1,8 @@
 # Music Player
 A music player made by using PyQt5 and PyGame.
 
+
+![](images\preview.png)
 ---
 # How it works
 
