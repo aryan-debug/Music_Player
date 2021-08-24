@@ -60,7 +60,6 @@ class MainWindow(QMainWindow):
         self.prev_btn = QPushButton("", self)
         self.prev_btn.setIcon(QIcon("images\previous.png"))
         self.prev_btn.setIconSize(QSize(50, 50))
-        self.adjustSize()
         self.prev_btn.setGeometry(
             round(self.width // 2.3), round(self.height // 1.2), 80, 80
         )
@@ -74,18 +73,19 @@ class MainWindow(QMainWindow):
         self.nxt_btn = QPushButton("", self)
         self.nxt_btn.setIcon(QIcon(r"images\next.png"))
         self.nxt_btn.setIconSize(QSize(50, 50))
-        self.adjustSize()
         self.nxt_btn.setGeometry(
             round(self.width // 1.75), round(self.height // 1.2), 80, 80
         )
-
         self.nxt_btn.clicked.connect(self.skip)
 
     def seek_bar(self):
+        """
+        Make a seek bar that moves when the song plays
+        """
         self.slider = QSlider(Qt.Horizontal, self)
         self.slider.setGeometry(20, self.height - 250, self.width - 50, 15)
         self.slider.setMinimum(0)
-        self.slider.setMaximum(music.get_song_length() - 10)
+        self.slider.setMaximum(music.get_song_length())
         self.slider.setTickInterval(1)
         self.slider.sliderReleased.connect(self.seek_song)
 
@@ -104,34 +104,45 @@ class MainWindow(QMainWindow):
         self.is_playing = True
         music_player.current_playing += 1
         self.music_player.skip()
-        self.slider.setValue(0)
-        self.slider.setMaximum(music.get_song_length() - 10)
-        self.move_bar()
-        self.timer.start(1000)
-        self.seconds = 0
+        self.reset_bar()
 
     def prev(self):
         """
         play previous song
         """
-        self.is_playing = True
         music_player.current_playing -= 1
+        self.is_playing = True
         self.music_player.previous()
-        self.slider.setValue(20)
-        self.slider.setMaximum(music.get_song_length() - 10)
-        self.move_bar()
-        self.timer.start(1000)
-        self.seconds = 0
+        self.reset_bar()
 
     def move_bar(self):
+        """
+        if they song is playing, move the bar. If the song ended, reset the bar
+        """
         if self.is_playing:
             self.slider.setValue(self.seconds)
             self.seconds += 1
+        if self.seconds > music.get_song_length():
+            self.seconds = 0
+            self.slider.setValue(0)
 
     def seek_song(self):
+        """
+        Play the song at the position of the slider
+        """
         self.music_player.seek_song(self.slider.value())
         self.slider.setValue(self.slider.value())
         self.seconds = self.slider.value()
+
+    def reset_bar(self):
+        """
+        reset the seek bar
+        """
+        self.slider.setValue(0)
+        self.slider.setMaximum(music.get_song_length())
+        self.move_bar()
+        self.timer.start(1000)
+        self.seconds = 0
 
 
 def get_stylesheet():

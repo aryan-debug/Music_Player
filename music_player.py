@@ -85,7 +85,6 @@ class MusicPlayer:
 
     def seek_song(self, pos):
         music.play(1, pos)
-        print("pos is set")
 
     def queue_next(self):
         """
